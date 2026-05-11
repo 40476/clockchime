@@ -33,7 +33,7 @@ android.permissions = WAKE_LOCK, MODIFY_AUDIO_SETTINGS
 android.api = 33
 
 (int) Minimum API your APK will support
-android.minapi = 21
+android.minapi = 27
 
 (str) Android NDK version to use
 android.ndk = 25b
