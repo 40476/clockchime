@@ -23,36 +23,53 @@ jobs:
         name: Windows-EXE
         path: dist/ClockChime-Windows.exe
 
-  build-linux:
+  build-linux-native:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libportaudio2 libasound2-dev
+    - name: Install Python Dependencies
+      run: |
+        pip install numpy sounddevice pyinstaller pystray pillow
+    - name: Build Linux Binary (x86_64)
+      run: pyinstaller --noconsole --onefile --name "ClockChime-Linux-x86_64" clockchime.py
+    - uses: actions/upload-artifact@v4
+      with:
+        name: Linux-Binary-x86_64
+        path: dist/ClockChime-Linux-x86_64
+
+  build-linux-arm:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: [x86_64, aarch64, armv7l]
+        arch: [aarch64, armv7]
         include:
-          - arch: x86_64
-            target: x86_64
           - arch: aarch64
             target: arm64
-          - arch: armv7l
+          - arch: armv7
             target: armhf
     steps:
     - uses: actions/checkout@v4
-    
-    # We use a Docker-based cross-compiler for Linux to ensure binaries work on older distros
-    # and to handle the different architectures (ARM64/ARMHF) easily.
     - name: Build Linux Binary (${{ matrix.target }})
       uses: uraimo/run-on-arch-action@v2
       with:
         arch: ${{ matrix.arch }}
         distro: ubuntu20.04
         githubToken: ${{ github.token }}
+        setup: |
+          mkdir -p "${PWD}/artifacts"
         install: |
-            apt-get update
-            apt-get install -y python3 python3-pip libportaudio2 libasound2-dev
-            pip3 install numpy sounddevice pyinstaller pystray pillow
+          apt-get update
+          apt-get install -y python3 python3-pip libportaudio2 libasound2-dev
+          pip3 install numpy sounddevice pyinstaller pystray pillow
         run: |
-            pyinstaller --noconsole --onefile --name "ClockChime-Linux-${{ matrix.target }}" clockchime.py
-
+          pyinstaller --noconsole --onefile --name "ClockChime-Linux-${{ matrix.target }}" clockchime.py
     - uses: actions/upload-artifact@v4
       with:
         name: Linux-Binary-${{ matrix.target }}
