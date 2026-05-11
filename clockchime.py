@@ -101,7 +101,8 @@ class ClockChimeCore:
         if count == 0: count = 12
         gong = self.synthesize_tone(NOTES['B'] / 2, duration=4.0, decay=1.0)
         for _ in range(count):
-            sd.play(gong, SAMPLERATE)
+            audio = self.synthesize_tone(NOTES['B'] / 2, duration=4.0, decay=1.0)
+            sd.play(audio, SAMPLERATE)
             time.sleep(self.settings["s_tempo"])
 
     def check_trigger(self, minute, hour):
@@ -112,6 +113,15 @@ class ClockChimeCore:
             self.play_sequence(2)
         elif self.settings["quarterly"] and (minute == 15 or minute == 45):
             self.play_sequence(1 if minute == 15 else 3)
+
+    def test_chime(self):
+        """Plays a short test sequence and a single hour strike."""
+        threading.Thread(target=self._run_test, daemon=True).start()
+
+    def _run_test(self):
+        self.play_sequence(1)
+        gong = self.synthesize_tone(NOTES['B'] / 2, duration=4.0, decay=1.0)
+        sd.play(gong, SAMPLERATE)
 
 # --- DESKTOP UI (Tkinter) ---
 def run_desktop(headless=False):
@@ -175,6 +185,8 @@ def run_desktop(headless=False):
 
             self.run_btn = ttk.Button(btn_frame, text="Stop Clock", command=self.toggle_daemon)
             self.run_btn.pack(side="left", padx=5)
+            
+            ttk.Button(btn_frame, text="Test Chime", command=self.test_chime).pack(side="left", padx=5)
             
             ttk.Button(btn_frame, text="Save Settings", command=self.save_desktop_settings).pack(side="left", padx=5)
 
@@ -275,9 +287,13 @@ def run_android():
             layout.add_widget(Label(text="30m Chimes"))
             layout.add_widget(self.bh_switch)
             
-            btn = Button(text="Save Settings", size_hint_y=None, height='50dp')
-            btn.bind(on_press=self.apply_settings)
-            layout.add_widget(btn)
+            test_btn = Button(text="Test Chime", size_hint_y=None, height='50dp')
+            test_btn.bind(on_press=lambda x: self.test_chime())
+            layout.add_widget(test_btn)
+            
+            save_btn = Button(text="Save Settings", size_hint_y=None, height='50dp')
+            save_btn.bind(on_press=self.apply_settings)
+            layout.add_widget(save_btn)
 
             Clock.schedule_interval(self.update_tick, 30)
             return layout
