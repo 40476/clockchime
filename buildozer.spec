@@ -42,7 +42,9 @@ android.ndk = 25b
 android.accept_sdk_license = True
 
 (str) The Android arch to build for
-android.archs = arm64-v8a, armeabi-v7a[buildozer]
+android.archs = arm64-v8a, armeabi-v7a
+
+[buildozer]
 
 (int) Log level (2 = debug)
 log_level = 2
