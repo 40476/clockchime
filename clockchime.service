@@ -3,8 +3,8 @@ Description=Grandfather Clock Chime Daemon
 After=network.target sound.target
 
 [Service]
-Environment=PYTHONPATH=/home/usr_40476/.local/share/pipx/venvs/pip/lib64/python3.13/site-packages
-ExecStart=/usr/bin/python3 /home/usr_40476/Projects/clockchime/clockchime.py --quarterly --bi-hourly  --m-tempo 0.7 --s-tempo 3.0 --daemon
+Environment=PYTHONPATH=%h.local/share/pipx/venvs/pip/lib64/python3.13/site-packages
+ExecStart=/usr/bin/python3 %h/.local/bin/clockchime.py --quarterly --bi-hourly  --m-tempo 0.7 --s-tempo 3.0 --daemon
 Restart=always
 RestartSec=10
 
