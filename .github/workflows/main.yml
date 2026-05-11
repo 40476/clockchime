@@ -66,10 +66,12 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
+    
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
         python-version: '3.10'
+        
     - name: Install System Dependencies
       run: |
         sudo apt-get update
@@ -78,19 +80,28 @@ jobs:
           libsdl2-mixer-dev libsdl2-ttf-dev libportaudio2 libasound2-dev \
           pkg-config libgl1-mesa-dev libgles2-mesa-dev zlib1g-dev \
           openjdk-17-jdk zip unzip autoconf libtool libssl-dev cmake ant
+          
     - name: Install Buildozer & Cython
       run: |
         pip install --upgrade pip
-        pip install --user --upgrade buildozer cython==0.29.33
+        # Pinning Cython to a version compatible with Kivy/NumPy 1.x
+        pip install --user --upgrade "buildozer" "cython<3.0"
         echo "$HOME/.local/bin" >> $GITHUB_PATH
+        
     - name: Build Android APK
       run: |
-        # Fix for the 'stringop-overflow' warning being treated as an error in hostpython3
+        # NumPy/C++ compilation fixes for Android NDK
+        # We force the C++ standard and disable strict overflow checks that break host-python
         export CFLAGS="$CFLAGS -Wno-error=stringop-overflow -Wno-error=format-overflow"
-        export ANDROID_NDK_HOME=""
+        export CXXFLAGS="$CXXFLAGS -std=c++17"
+        
+        # Ensure we don't use a global NDK that might conflict with Buildozer's managed one
+        unset ANDROID_NDK_HOME
+        
         buildozer android debug
       env:
         APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+        
     - name: Upload APK
       uses: actions/upload-artifact@v4
       with:
