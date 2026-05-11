@@ -101,6 +101,8 @@ jobs:
         # We force the C++ standard and disable strict overflow checks that break host-python
         export CFLAGS="$CFLAGS -Wno-error=stringop-overflow -Wno-error=format-overflow"
         export CXXFLAGS="$CXXFLAGS -std=c++17"
+
+        export JAVA_HOME=$JAVA_HOME_17_X64
         
         # Ensure we don't use a global NDK that might conflict with Buildozer's managed one
         unset ANDROID_NDK_HOME
