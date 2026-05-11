@@ -99,7 +99,6 @@ class ClockChimeCore:
     def strike_hour(self, hour):
         count = hour % 12
         if count == 0: count = 12
-        gong = self.synthesize_tone(NOTES['B'] / 2, duration=4.0, decay=1.0)
         for _ in range(count):
             audio = self.synthesize_tone(NOTES['B'] / 2, duration=4.0, decay=1.0)
             sd.play(audio, SAMPLERATE)
@@ -124,7 +123,7 @@ class ClockChimeCore:
         sd.play(gong, SAMPLERATE)
 
 # --- DESKTOP UI (Tkinter) ---
-def run_desktop(headless=False):
+def run_desktop(headless=False, cli_overrides=None):
     import tkinter as tk
     from tkinter import messagebox, ttk
     from PIL import Image
@@ -138,6 +137,14 @@ def run_desktop(headless=False):
         def __init__(self, root):
             super().__init__()
             self.root = root
+            
+            # Apply CLI overrides to settings if provided
+            if cli_overrides:
+                if cli_overrides.get("m_tempo") is not None:
+                    self.settings["m_tempo"] = cli_overrides["m_tempo"]
+                if cli_overrides.get("s_tempo") is not None:
+                    self.settings["s_tempo"] = cli_overrides["s_tempo"]
+
             if not headless:
                 self.setup_ui()
                 if pystray: self.setup_tray()
@@ -314,9 +321,23 @@ def run_android():
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--daemon", action="store_true", help="Run without UI")
+    parser.add_argument("--test-hour", type=int, help="Test a specific hour chime (1-12)")
+    parser.add_argument("--m-tempo", type=float, help="Override melody tempo")
+    parser.add_argument("--s-tempo", type=float, help="Override strike tempo")
     args = parser.parse_args()
 
     if sys.platform == "android":
         run_android()
+    elif args.test_hour is not None:
+        # Direct CLI test mode
+        core = ClockChimeCore()
+        # Apply tempo overrides for this session
+        if args.m_tempo: core.settings["m_tempo"] = args.m_tempo
+        if args.s_tempo: core.settings["s_tempo"] = args.s_tempo
+        
+        print(f"Testing Hour: {args.test_hour}")
+        core.play_sequence(4)
+        core.strike_hour(args.test_hour)
     else:
-        run_desktop(headless=args.daemon)
+        overrides = {"m_tempo": args.m_tempo, "s_tempo": args.s_tempo}
+        run_desktop(headless=args.daemon, cli_overrides=overrides)
