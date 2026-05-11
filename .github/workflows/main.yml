@@ -1,8 +1,8 @@
 name: Build Multi-Platform
 
 on:
-  push:
-    branches: [ "main" ]
+  # push:
+  #   branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
@@ -84,8 +84,9 @@ jobs:
     - name: Install Buildozer & Cython
       run: |
         pip install --upgrade pip
-        # Pinning Cython to a version compatible with Kivy/NumPy 1.x
-        pip install --user --upgrade "buildozer" "cython<3.0"
+        # We install build-time dependencies. 
+        # Note: We don't pip install numpy here because Buildozer compiles it for Android later.
+        pip install --user --upgrade "buildozer" "cython<3.0" "setuptools"
         echo "$HOME/.local/bin" >> $GITHUB_PATH
         
     - name: Build Android APK
@@ -98,6 +99,7 @@ jobs:
         # Ensure we don't use a global NDK that might conflict with Buildozer's managed one
         unset ANDROID_NDK_HOME
         
+        # We use 'buildozer android debug' which reads requirements from your buildozer.spec
         buildozer android debug
       env:
         APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
