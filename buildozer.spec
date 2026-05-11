@@ -18,7 +18,7 @@ source.include_exts = py,png,jpg,kv,atlas,json
 version = 0.1
 
 (list) Application requirementsnumpy and kivy are large, sounddevice requires libportaudio
-requirements = python3,kivy,numpy==v1.26.4,sounddevice,pillow
+requirements = python3,kivy,numpy==1.26.4,scipy,sounddevice,pillow,pyjnius
 
 (list) Supported orientations
 orientation = portrait
@@ -45,9 +45,6 @@ android.accept_sdk_license = True
 android.archs = arm64-v8a, armeabi-v7a
 
 [buildozer]
-
-(int) Log level (2 = debug)
-log_level = 2
 
 (int) Display warning if buildozer is run as root
 warn_on_root = 1

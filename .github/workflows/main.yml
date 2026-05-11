@@ -62,58 +62,58 @@ jobs:
         name: Linux-ARM64-Build
         path: dist/ClockChime-Linux-ARM64
 
-  build-android:
-  
-    runs-on: ubuntu-22.04
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.10'
-        
-    - name: Install System Dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev \
-          libsdl2-mixer-dev libsdl2-ttf-dev libportaudio2 libasound2-dev \
-          pkg-config libgl1-mesa-dev libgles2-mesa-dev zlib1g-dev \
-          openjdk-17-jdk zip unzip autoconf libtool libssl-dev cmake ant
-          
-    - name: Install Buildozer & Cython
-    
-      run: |
-        pip install --upgrade pip
-        # We install build-time dependencies. 
-        # Note: We don't pip install numpy here because Buildozer compiles it for Android later.
-        pip install --user --upgrade "buildozer" "cython<3.0" "setuptools"
-        echo "$HOME/.local/bin" >> $GITHUB_PATH
-        
-    - name: Build Android APK
-      run: |
-        # Android requires an entry point named main.py
-        if [ -f "clockchime.py" ]; then
-          cp clockchime.py main.py
-        fi
-        # NumPy/C++ compilation fixes for Android NDK
-        # We force the C++ standard and disable strict overflow checks that break host-python
-        export CFLAGS="$CFLAGS -Wno-error=stringop-overflow -Wno-error=format-overflow"
-        export CXXFLAGS="$CXXFLAGS -std=c++17"
-
-        export JAVA_HOME=$JAVA_HOME_17_X64
-        
-        # Ensure we don't use a global NDK that might conflict with Buildozer's managed one
-        unset ANDROID_NDK_HOME
-        
-        # We use 'buildozer android debug' which reads requirements from your buildozer.spec
-        buildozer android debug
-      env:
-        APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
-        
-    - name: Upload APK
-      uses: actions/upload-artifact@v4
-      with:
-        name: Android-APK
-        path: bin/*.apk
+#   build-android:
+#   
+#     runs-on: ubuntu-22.04
+#     steps:
+#     - uses: actions/checkout@v4
+#     
+#     - name: Set up Python
+#       uses: actions/setup-python@v5
+#       with:
+#         python-version: '3.10'
+#         
+#     - name: Install System Dependencies
+#       run: |
+#         sudo apt-get update
+#         sudo apt-get install -y \
+#           build-essential git python3-dev ffmpeg libsdl2-dev libsdl2-image-dev \
+#           libsdl2-mixer-dev libsdl2-ttf-dev libportaudio2 libasound2-dev \
+#           pkg-config libgl1-mesa-dev libgles2-mesa-dev zlib1g-dev \
+#           openjdk-17-jdk zip unzip autoconf libtool libssl-dev cmake ant
+#           
+#     - name: Install Buildozer & Cython
+#     
+#       run: |
+#         pip install --upgrade pip
+#         # We install build-time dependencies. 
+#         # Note: We don't pip install numpy here because Buildozer compiles it for Android later.
+#         pip install --user --upgrade "buildozer" "cython<3.0" "setuptools"
+#         echo "$HOME/.local/bin" >> $GITHUB_PATH
+#         
+#     - name: Build Android APK
+#       run: |
+#         # Android requires an entry point named main.py
+#         if [ -f "clockchime.py" ]; then
+#           cp clockchime.py main.py
+#         fi
+#         # NumPy/C++ compilation fixes for Android NDK
+#         # We force the C++ standard and disable strict overflow checks that break host-python
+#         export CFLAGS="$CFLAGS -Wno-error=stringop-overflow -Wno-error=format-overflow"
+#         export CXXFLAGS="$CXXFLAGS -std=c++17"
+# 
+#         export JAVA_HOME=$JAVA_HOME_17_X64
+#         
+#         # Ensure we don't use a global NDK that might conflict with Buildozer's managed one
+#         unset ANDROID_NDK_HOME
+#         
+#         # We use 'buildozer android debug' which reads requirements from your buildozer.spec
+#         buildozer android debug
+#       env:
+#         APP_ANDROID_ACCEPT_SDK_LICENSE: "1"
+#         
+#     - name: Upload APK
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: Android-APK
+#         path: bin/*.apk
