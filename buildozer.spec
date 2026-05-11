@@ -18,7 +18,7 @@ source.include_exts = py,png,jpg,kv,atlas,json
 version = 0.1
 
 (list) Application requirementsnumpy and kivy are large, sounddevice requires libportaudio
-requirements = python3,kivy,numpy==1.26.4,sounddevice,pillow
+requirements = python3,kivy,numpy==v1.26.4,sounddevice,pillow
 
 (list) Supported orientations
 orientation = portrait
