@@ -119,7 +119,7 @@ class ClockChimeCore:
         threading.Thread(target=self._run_test, daemon=True).start()
 
     def _run_test(self):
-        self.play_sequence(1)
+        self.play_sequence(4)
         gong = self.synthesize_tone(NOTES['B'] / 2, duration=4.0, decay=1.0)
         sd.play(gong, SAMPLERATE)
 
